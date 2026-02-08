@@ -5,52 +5,339 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+    <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+    <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
     >
+    <style>
+        :root {
+            --ink: #e5e7eb;
+            --muted: #9ca3af;
+            --primary: #ff2d6f;
+            --primary-soft: #ff5c8a;
+            --surface: rgba(15, 19, 25, 0.45);
+            --border: rgba(255, 255, 255, 0.12);
+            --bg-grad: linear-gradient(135deg, #0b0f14 0%, #111827 55%, #0b0f14 100%);
+        }
+
+        body {
+            font-family: "Sora", "Segoe UI", sans-serif;
+            background: var(--bg-grad);
+            color: var(--ink);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+            scrollbar-width: none;
+        }
+
+        body::-webkit-scrollbar {
+            width: 0;
+            height: 0;
+        }
+
+        body::before,
+        body::after {
+            content: "";
+            position: fixed;
+            width: 420px;
+            height: 420px;
+            filter: blur(60px);
+            opacity: 0.45;
+            z-index: 0;
+        }
+
+        body::before {
+            top: -120px;
+            left: -120px;
+            background: radial-gradient(circle, rgba(255, 45, 111, 0.55), transparent 60%);
+        }
+
+        body::after {
+            bottom: -160px;
+            right: -120px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.45), transparent 60%);
+        }
+
+        .page-wrap {
+            position: relative;
+            z-index: 1;
+        }
+
+        .glass-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(24px) saturate(160%);
+            -webkit-backdrop-filter: blur(24px) saturate(160%);
+            border-radius: 24px;
+            box-shadow: 0 24px 60px rgba(8, 10, 14, 0.65);
+        }
+
+        .header-bar {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        @media (min-width: 768px) {
+            .header-bar {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+        }
+
+        .header-title {
+            font-size: 1.9rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .header-subtitle {
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .form-control {
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            padding: 0.85rem 1rem;
+            background: rgba(11, 15, 20, 0.9);
+            color: var(--ink);
+        }
+
+        .form-control::placeholder {
+            color: #6b7280;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-soft);
+            box-shadow: 0 0 0 0.2rem rgba(255, 45, 111, 0.22);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            border-radius: 16px;
+            padding: 0.85rem 1rem;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #ff4b83;
+            border-color: #ff4b83;
+        }
+
+        .btn-outline-light {
+            border-radius: 12px;
+            color: var(--ink);
+            border-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .btn-outline-light:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--ink);
+        }
+
+        .add-btn {
+            width: 140px;
+            max-width: 100%;
+        }
+
+        @media (max-width: 767.98px) {
+            .add-btn {
+                width: 100%;
+            }
+        }
+
+        .todo-item {
+            background: rgba(11, 15, 20, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 0.9rem 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .todo-title {
+            color: var(--ink);
+        }
+
+        .todo-title.completed {
+            color: #9aa3b2;
+            text-decoration: line-through;
+        }
+
+        .todo-toggle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            background: transparent;
+            color: transparent;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .todo-toggle.completed {
+            border-color: rgba(52, 211, 153, 0.7);
+            background: rgba(16, 185, 129, 0.9);
+            color: #0b0f14;
+        }
+
+        .toast-stack {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1050;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: min(420px, 90vw);
+        }
+
+        .toast-item {
+            background: rgba(15, 19, 25, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--ink);
+            padding: 0.75rem 1rem;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            box-shadow: 0 12px 30px rgba(8, 10, 14, 0.6);
+            backdrop-filter: blur(18px) saturate(160%);
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .toast-item.fade-out {
+            opacity: 0;
+            transform: translateY(-8px);
+        }
+
+        .toast-item.success {
+            border-color: rgba(52, 211, 153, 0.6);
+        }
+
+        .toast-item.warning {
+            border-color: rgba(251, 191, 36, 0.6);
+        }
+
+        .toast-item.danger {
+            border-color: rgba(248, 113, 113, 0.7);
+        }
+
+        .modal-content {
+            background: #0f1319;
+            color: var(--ink);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+        }
+
+        .modal {
+            z-index: 1200;
+        }
+
+        .modal-backdrop {
+            z-index: 1100;
+        }
+
+        .modal-header,
+        .modal-footer {
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .modal-footer {
+            gap: 0.75rem;
+        }
+
+        .modal-footer .btn {
+            min-width: 120px;
+            padding: 0.65rem 1rem;
+        }
+
+
+        .btn:focus,
+        .btn:focus-visible,
+        .btn:active {
+            outline: none;
+            box-shadow: none !important;
+        }
+    </style>
 </head>
-<body class="bg-light">
-    <div class="container py-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3">Your Todos</h1>
-            <a href="{{ url_for('logout') }}" class="btn btn-outline-secondary">Logout</a>
-        </div>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        <div class="card mb-4">
-            <div class="card-body">
-                <form method="post">
-                    <div class="input-group">
-                        <input type="text" class="form-control" name="title" placeholder="New todo" required>
-                        <button class="btn btn-primary" type="submit">Add</button>
-                    </div>
-                </form>
+<body>
+    <div class="page-wrap container py-5">
+        <div class="glass-card p-4 mb-4">
+            <div class="header-bar">
+                <div>
+                    <h1 class="header-title">My Todos</h1>
+                    <p class="header-subtitle">Track what matters and keep your list sharp.</p>
+                </div>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline-light">Logout</a>
             </div>
         </div>
-        <div class="card">
-            <div class="card-body">
-                {% if todos %}
-                    <ul class="list-group">
-                        {% for todo in todos %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="toast-stack">
+                    {% for category, message in messages %}
+                        <div class="toast-item {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="glass-card p-4 mb-4">
+            <form method="post">
+                <div class="d-flex flex-column flex-md-row gap-3 align-items-stretch">
+                    <div class="flex-grow-1">
+                        <input type="text" class="form-control" name="title" placeholder="Add a new task" required>
+                    </div>
+                    <div class="d-flex justify-content-md-end">
+                        <button class="btn btn-primary add-btn" type="submit">Add Todo</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="glass-card p-4">
+            {% if todos %}
+                <ul class="list-unstyled mb-0">
+                    {% for todo in todos %}
+                        <li class="todo-item">
+                            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                                <div class="d-flex align-items-center gap-2">
                                     <form method="post" action="{{ url_for('toggle_todo', todo_id=todo.id) }}" class="d-inline">
-                                        <button class="btn btn-sm btn-outline-success me-2" type="submit">
-                                            {% if todo.is_complete %}Undo{% else %}Done{% endif %}
+                                        <button
+                                            class="todo-toggle {% if todo.is_complete %}completed{% endif %}"
+                                            type="submit"
+                                            aria-label="{% if todo.is_complete %}Mark incomplete{% else %}Mark complete{% endif %}"
+                                        >
+                                            &#10003;
                                         </button>
                                     </form>
-                                    <span class="{% if todo.is_complete %}text-decoration-line-through text-muted{% endif %}">
+                                    <span class="todo-title {% if todo.is_complete %}completed{% endif %}">
                                         {{ todo.title }}
                                     </span>
                                 </div>
                                 <div class="d-flex gap-2">
                                     <button
-                                        class="btn btn-sm btn-outline-primary"
+                                        class="btn btn-sm btn-outline-light"
                                         type="button"
                                         data-bs-toggle="modal"
                                         data-bs-target="#editModal-{{ todo.id }}"
@@ -58,53 +345,65 @@
                                         Edit
                                     </button>
                                     <form method="post" action="{{ url_for('delete_todo', todo_id=todo.id) }}">
-                                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                                        <button class="btn btn-sm btn-outline-light" type="submit">Delete</button>
                                     </form>
                                 </div>
-                            </li>
-                            <div
-                                class="modal fade"
-                                id="editModal-{{ todo.id }}"
-                                tabindex="-1"
-                                aria-labelledby="editModalLabel-{{ todo.id }}"
-                                aria-hidden="true"
-                            >
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <form method="post" action="{{ url_for('edit_todo', todo_id=todo.id) }}">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title" id="editModalLabel-{{ todo.id }}">Edit Todo</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="mb-3">
-                                                    <label for="title-{{ todo.id }}" class="form-label">Title</label>
-                                                    <input
-                                                        type="text"
-                                                        class="form-control"
-                                                        id="title-{{ todo.id }}"
-                                                        name="title"
-                                                        value="{{ todo.title }}"
-                                                        required
-                                                    >
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                <button type="submit" class="btn btn-primary">Save</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
                             </div>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p class="text-muted mb-0">No todos yet. Add one above!</p>
-                {% endif %}
-            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="header-subtitle mb-0">No todos yet. Add one above!</p>
+            {% endif %}
         </div>
     </div>
+    {% if todos %}
+        {% for todo in todos %}
+            <div
+                class="modal fade"
+                id="editModal-{{ todo.id }}"
+                tabindex="-1"
+                aria-labelledby="editModalLabel-{{ todo.id }}"
+                aria-hidden="true"
+            >
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <form method="post" action="{{ url_for('edit_todo', todo_id=todo.id) }}">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editModalLabel-{{ todo.id }}">Edit Todo</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="title-{{ todo.id }}" class="form-label">Title</label>
+                                    <input
+                                        type="text"
+                                        class="form-control"
+                                        id="title-{{ todo.id }}"
+                                        name="title"
+                                        value="{{ todo.title }}"
+                                        required
+                                    >
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        setTimeout(() => {
+            document.querySelectorAll(".toast-item").forEach((toast) => {
+                toast.classList.add("fade-out");
+                setTimeout(() => toast.remove(), 320);
+            });
+        }, 2000);
+    </script>
 </body>
 </html>
